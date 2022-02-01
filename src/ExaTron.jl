@@ -57,4 +57,6 @@ include("admm/auglag_kernel.jl")
 include("admm/acopf_admm_gpu.jl")
 include("admm/acopf_admm_gpu_two_level.jl")
 
+include("admm/uc/ucopfdata.jl")
+
 end # module
