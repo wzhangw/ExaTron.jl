@@ -3,10 +3,8 @@ using Random
 mutable struct UCBus
   bus_i::Int
   bustype::Int
-  # Pd::Vector{Float64}
-  # Qd::Vector{Float64}
-  Pd::Float64
-  Qd::Float64
+  Pd::Vector{Float64}
+  Qd::Vector{Float64}
   Gs::Float64
   Bs::Float64
   area::Int
@@ -149,20 +147,22 @@ function uc_initialize(gen::UCGener)::Nothing
   return
 end
 
-function ucopf_loaddata(case_name, lineOff=Line())
+function ucopf_loaddata(case_name, demand_data, lineOff=Line())
   Random.seed!(35)
   #
   # load buses
   #
   # bus_arr = readdlm("data/" * case_name * ".bus")
   bus_arr = readdlm(case_name * ".bus")
+  pd_matrix = readdlm(demand_data * ".Pd")
+  qd_matrix = readdlm(demand_data * ".Qd")
   num_buses = size(bus_arr,1)
   buses = Array{UCBus}(undef, num_buses)
   bus_ref=-1
   for i in 1:num_buses
     @assert bus_arr[i,1]>0  #don't support nonpositive bus ids
-    buses[i] = UCBus(bus_arr[i,1:13]...) # TODO: CHANGE THIS SO THAT PD AND QD VECTORS ARE FED INTO INITIALIZATION
-    buses[i].Va *= pi/180
+    buses[i] = UCBus(bus_arr[i,1:2]..., pd_matrix[i, 1:24], qd_matrix[i, 1:24], bus_arr[i,5:13]...)
+    buses[i].Va *= pi/18
     if buses[i].bustype==3
       if bus_ref>0
         error("More than one reference bus present in the data")
